@@ -7,12 +7,16 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="mcp-servers.json" />
+    <None Remove="system-prompt.txt" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ModelContextProtocol" Version="1.4.0" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="mcp-servers.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="system-prompt.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
