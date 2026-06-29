@@ -2,6 +2,7 @@ using LocalAgent.Agent.Core;
 using LocalAgent.Agent.Llm.Ollama;
 using LocalAgent.Agent.Tools;
 using LocalAgent.Agent.Mcp;
+using LocalAgent.Console.Agent.Util;
 
 var ollamaUrl = Environment.GetEnvironmentVariable("OLLAMA_URL") ?? "http://192.168.1.142:11434";
 var model = Environment.GetEnvironmentVariable("OLLAMA_MODEL") ?? "qwen2.5:7b";
@@ -38,11 +39,7 @@ await McpToolLoader.RegisterMcpToolsAsync(
 
 var runtime = new AgentRuntime(planner, registry, options);
 
-Console.WriteLine("LocalAgent.Console");
-Console.WriteLine($"Ollama: {ollamaUrl}");
-Console.WriteLine($"Model:  {options.Model}");
-Console.WriteLine("Commands: /tools, /model <name>, /reset, /exit");
-Console.WriteLine();
+Con.ShowWelcome(ollamaUrl, options);
 
 while (true)
 {

@@ -11,7 +11,7 @@ A lightweight local AI agent runtime powered by Ollama. It uses a simple JSON-ba
 
 ## Requirements
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Ollama](https://ollama.com) running and accessible
 - At least one model pulled:
 
