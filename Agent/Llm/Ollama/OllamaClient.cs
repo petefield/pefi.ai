@@ -31,7 +31,8 @@ public sealed class OllamaClient
             options = new
             {
                 temperature,         
-                num_ctx = 8192
+                num_ctx = 8192,
+                num_predict= 81920,
             }
         };
 

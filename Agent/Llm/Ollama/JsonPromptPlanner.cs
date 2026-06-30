@@ -1,7 +1,8 @@
-using System.Runtime.CompilerServices;
-using System.Text.Json;
 using LocalAgent.Agent.Core;
 using LocalAgent.Agent.Util;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 
 namespace LocalAgent.Agent.Llm.Ollama;
 
@@ -200,8 +201,74 @@ public sealed class JsonPromptPlanner : IAgentPlanner
 
         var toolsJson = JsonSerializer.Serialize(toolDescriptions, new JsonSerializerOptions { WriteIndented = true });
 
-        return _systemPromptTemplate.Replace("{tools}", toolsJson);
+        return _systemPromptTemplate.Replace("{tools}", BuildToolIndex(tools));
     }
+
+    private static string BuildToolIndex(IEnumerable<IAgentTool> tools)
+{
+    var groups = tools
+        .OrderBy(t => GetToolGroup(t.Name))
+        .ThenBy(t => t.Name)
+        .GroupBy(t => GetToolGroup(t.Name));
+
+    var sb = new StringBuilder();
+
+    foreach (var group in groups)
+    {
+        sb.AppendLine($"{group.Key}:");
+
+        foreach (var tool in group)
+        {
+            var summary = SummariseDescription(tool.Description);
+
+            sb.AppendLine($"- {tool.Name}: {summary}");
+        }
+
+        sb.AppendLine();
+    }
+
+    return sb.ToString().Trim();
+}
+    private static string GetToolGroup(string toolName)
+{
+    if (toolName.StartsWith("mcp_google_calendar_", StringComparison.OrdinalIgnoreCase))
+        return "Calendar";
+
+    if (toolName.StartsWith("mcp_weather_", StringComparison.OrdinalIgnoreCase))
+        return "Weather";
+
+    if (toolName.StartsWith("mcp_filesystem_", StringComparison.OrdinalIgnoreCase))
+        return "Filesystem";
+
+    if (toolName.Contains("location", StringComparison.OrdinalIgnoreCase))
+        return "Location";
+
+    if (toolName.Contains("time", StringComparison.OrdinalIgnoreCase))
+        return "Time";
+
+    if (toolName.Contains("search", StringComparison.OrdinalIgnoreCase))
+        return "Search";
+
+    return "General";
+}
+    private static string SummariseDescription(string description)
+{
+    if (string.IsNullOrWhiteSpace(description))
+        return "No description.";
+
+    var firstLine = description
+        .Replace("\r", "")
+        .Split('\n', StringSplitOptions.RemoveEmptyEntries)
+        .FirstOrDefault()
+        ?.Trim();
+
+    if (string.IsNullOrWhiteSpace(firstLine))
+        return "No description.";
+
+    return firstLine.Length <= 120
+        ? firstLine
+        : firstLine[..117] + "...";
+}
 
     private static AgentAction ParseAction(string modelResponse, IReadOnlyCollection<IAgentTool> tools)
     {
@@ -219,6 +286,22 @@ public sealed class JsonPromptPlanner : IAgentPlanner
             var type = root.TryGetProperty("type", out var typeProperty)
                 ? typeProperty.GetString()
                 : null;
+
+            if (root.TryGetProperty("name", out var nameElement))
+            {
+                var toolName1 = nameElement.GetString();
+
+                if (!string.IsNullOrWhiteSpace(toolName1) && tools.Any(x => string.Equals(x.Name, toolName1, StringComparison.OrdinalIgnoreCase )))
+                {
+                    var arguments = root.TryGetProperty("arguments", out var args)
+                        ? args
+                        : JsonDocument.Parse("{}").RootElement;
+
+                   return new AgentAction(AgentActionType.ToolCall, ToolName: toolName1, Arguments: args);
+
+                }
+            }
+
 
             var toolName = root.TryGetProperty("tool", out var toolProperty)
                     ? toolProperty.GetString()

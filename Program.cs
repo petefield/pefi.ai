@@ -5,7 +5,7 @@ using LocalAgent.Agent.Mcp;
 using LocalAgent.Console.Agent.Util;
 
 var ollamaUrl = Environment.GetEnvironmentVariable("OLLAMA_URL") ?? "http://192.168.1.142:11434";
-var model = Environment.GetEnvironmentVariable("OLLAMA_MODEL") ?? "qwen2.5:7b";
+var model = Environment.GetEnvironmentVariable("OLLAMA_MODEL") ?? "qwen3.5:4b";
 
 var options = new AgentOptions
 {

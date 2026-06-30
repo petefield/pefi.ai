@@ -54,10 +54,17 @@ public sealed class McpToolAdapter : IAgentTool
             argumentsDict,
             cancellationToken: cancellationToken);
 
-        var content = JsonSerializer.Serialize(result, new JsonSerializerOptions
+              var content = JsonSerializer.Serialize(result, new JsonSerializerOptions
         {
             WriteIndented = true
         });
+
+
+        if (result.IsError ?? false)
+        { 
+                return ToolResult.Fail(content);
+        }
+  
     
         return ToolResult.Ok(content);
     }

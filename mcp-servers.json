@@ -4,13 +4,19 @@
     {
       "name": "weather",
       "type": "http",
-      "url": "http://pippin:3002/mcp",
+      "url": "http://192.168.1.69:3002/mcp",
       "timeoutSeconds": 30
     },
     {
       "name": "filesystem",
       "type": "http",
-      "url": "http://pippin:3003/mcp",
+      "url": "http://192.168.1.69:3003/mcp",
+      "timeoutSeconds": 30
+    },
+    {
+      "name": "google_calendar",
+      "type": "http",
+      "url": "http://192.168.1.69:3004/mcp",
       "timeoutSeconds": 30
     }
   ]
