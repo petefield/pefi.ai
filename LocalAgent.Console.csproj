@@ -16,7 +16,7 @@
     <Content Include="mcp-servers.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="system-prompt.txt">
+    <Content Include="system-prompt.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

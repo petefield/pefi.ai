@@ -24,11 +24,7 @@ var ollamaClient = new OllamaClient(httpClient);
 var planner = new JsonPromptPlanner(ollamaClient);
 
 var registry = new ToolRegistry();
-var fsSecurity = new FileSystemSecurity(Directory.GetCurrentDirectory());
 registry.Register(new GetCurrentTimeTool());
-registry.Register(new ListDirectoryTool(fsSecurity));
-registry.Register(new ReadFileTool(fsSecurity));
-registry.Register(new WriteFileTool(fsSecurity));
 registry.Register(new GetCurrentLocationTool());
 registry.Register(new WebSearchTool(new HttpClient()));
 
@@ -76,9 +72,11 @@ while (true)
 
     try
     {
-        var answer = await runtime.RunAsync(input, CancellationToken.None);
+        await foreach (var chunk in runtime.RunStreamingAsync(input, CancellationToken.None))
+        {
+            Console.Write(chunk);
+        }
         Console.WriteLine();
-        Console.WriteLine(answer);
         Console.WriteLine();
     }
     catch (Exception ex)

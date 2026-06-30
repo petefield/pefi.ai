@@ -11,7 +11,16 @@ public sealed class GetCurrentLocationTool : IAgentTool
 
     public async Task<ToolResult> ExecuteAsync(JsonElement arguments, CancellationToken cancellationToken)
     {
-        var location = await GeoLocationService.GetLocationAsync();
-        return ToolResult.Ok(location.ToString());
+
+        var location = new GeoLocation
+        {
+            Country = "United Kingdom",
+            City = "Dorking",
+            Zip = "RH4 1NJ",
+            Lat = 51.2324,
+            Lon = -0.3333
+        };
+
+        return await Task.FromResult(ToolResult.Ok(location.ToString()));
     }
 }

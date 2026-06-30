@@ -14,11 +14,31 @@ namespace LocalAgent.Console.Agent.Util
             System.Console.ForegroundColor = col;
         }
 
+        public static void WriteLineItalic(string message, ConsoleColor color)
+        {
+            var col = System.Console.ForegroundColor;
+            System.Console.ForegroundColor = color;
+            System.Console.Write("\x1b[3m"); // ANSI escape code for italic
+            System.Console.WriteLine(message);
+            System.Console.Write("\x1b[23m"); // ANSI escape code to reset italic
+            System.Console.ForegroundColor = col;
+        }
+
+
+        public static void WriteItalic(string message, ConsoleColor color)
+        {
+            var col = System.Console.ForegroundColor;
+            System.Console.ForegroundColor = color;
+            System.Console.Write("\x1b[3m"); // ANSI escape code for italic
+            System.Console.Write(message);
+            System.Console.Write("\x1b[23m"); // ANSI escape code to reset italic
+            System.Console.ForegroundColor = col;
+        }
 
         public static void ShowWelcome(string ollamaUrl, AgentOptions options)
         {
             
-            System.Console.Clear();
+            //System.Console.Clear();
             
             // ASCII Art Header
             WriteLine(@"╔═══════════════════════════════════════════════════╗", ConsoleColor.Cyan);
