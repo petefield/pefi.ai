@@ -1,5 +1,7 @@
 ﻿using System.Text.Json;
 
+namespace LocalAgent.Agent.Tools.Location;
+
 public static class GeoLocationService
 {
     private static async Task<string> GetCurrentIPAddress()
@@ -9,7 +11,6 @@ public static class GeoLocationService
         return ipAddress;
     }
 
-
     public static async Task<GeoLocation> GetLocationAsync()
     {
         var ipAddress = await GetCurrentIPAddress();
@@ -18,11 +19,16 @@ public static class GeoLocationService
         var response = await httpClient.GetStringAsync(url);
 
         var options = new JsonSerializerOptions
-{
-    PropertyNameCaseInsensitive = true
-};
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         var location = JsonSerializer.Deserialize<GeoLocation>(response, options);
+        if (location is null)
+        {
+            throw new InvalidOperationException("Failed to deserialize geolocation response.");
+        }
+
         return location;
     }
 

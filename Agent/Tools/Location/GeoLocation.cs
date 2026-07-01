@@ -1,13 +1,13 @@
-﻿using System.Net.Http;
-using System.Text.Json;
-using System.Threading.Tasks;
+﻿using System.Text.Json;
+namespace LocalAgent.Agent.Tools.Location;
+
 public class GeoLocation
 {
-    public string Query { get; set; }  // IP
-    public string Country { get; set; }
-    public string RegionName { get; set; }
-    public string City { get; set; }
-    public string Zip { get; set; }
+    public string? Query { get; set; }  // IP
+    public string? Country { get; set; }
+    public string? RegionName { get; set; }
+    public string? City { get; set; }
+    public string? Zip { get; set; }
     public double Lat { get; set; }
     public double Lon { get; set; }
 

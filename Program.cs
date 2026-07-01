@@ -3,6 +3,7 @@ using LocalAgent.Agent.Llm.Ollama;
 using LocalAgent.Agent.Tools;
 using LocalAgent.Agent.Mcp;
 using LocalAgent.Console.Agent.Util;
+using Spectre.Console;
 
 var ollamaUrl = Environment.GetEnvironmentVariable("OLLAMA_URL") ?? "http://192.168.1.142:11434";
 var model = Environment.GetEnvironmentVariable("OLLAMA_MODEL") ?? "qwen3.5:4b";
@@ -28,10 +29,7 @@ registry.Register(new GetCurrentTimeTool());
 registry.Register(new GetCurrentLocationTool());
 registry.Register(new WebSearchTool(new HttpClient()));
 
-await McpToolLoader.RegisterMcpToolsAsync(
-    registry,
-    "mcp-servers.json",
-    CancellationToken.None);
+await McpToolLoader.RegisterMcpToolsAsync( registry, "mcp-servers.json", CancellationToken.None);
 
 var runtime = new AgentRuntime(planner, registry, options);
 
@@ -74,7 +72,7 @@ while (true)
     {
         await foreach (var chunk in runtime.RunStreamingAsync(input, CancellationToken.None))
         {
-            Console.Write(chunk);
+            AnsiConsole.MarkupLine(chunk);
         }
         Console.WriteLine();
         Console.WriteLine();

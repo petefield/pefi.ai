@@ -1,5 +1,6 @@
 using System.Text.Json;
 using LocalAgent.Agent.Core;
+using LocalAgent.Agent.Tools.Location;
 
 namespace LocalAgent.Agent.Tools;
 

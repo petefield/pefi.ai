@@ -1,5 +1,6 @@
 ﻿using System;
 using LocalAgent.Agent.Core;
+using Spectre.Console;
 
 
 namespace LocalAgent.Console.Agent.Util
@@ -38,7 +39,7 @@ namespace LocalAgent.Console.Agent.Util
         public static void ShowWelcome(string ollamaUrl, AgentOptions options)
         {
             
-            //System.Console.Clear();
+            System.Console.Clear();
             
             // ASCII Art Header
             WriteLine(@"╔═══════════════════════════════════════════════════╗", ConsoleColor.Cyan);
@@ -55,7 +56,6 @@ namespace LocalAgent.Console.Agent.Util
             WriteLine(@"╚═══════════════════════════════════════════════════╝", ConsoleColor.Cyan);
             System.Console.WriteLine();
             
-
             var ConfigHeader = new BoxedMessage("Configuration", 50, ConsoleColor.White, ConsoleColor.Cyan);
             ConfigHeader.Write($"🤖 Ollama URL : {ollamaUrl}");
             ConfigHeader.Write($"📦 Model : {options.Model}");

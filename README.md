@@ -27,6 +27,17 @@ ollama pull llama3.1:8b
 dotnet run --project LocalAgent.Console.csproj
 ```
 
+## Debugging in VS Code
+
+This repository includes VS Code debug configuration files under `.vscode/`.
+
+1. Open the project folder in VS Code.
+2. Install recommended extensions when prompted.
+3. Set breakpoints in C# files.
+4. Press `F5` and choose **.NET: Launch LocalAgent.Console**.
+
+The debug profile runs the `build` task first, then launches `bin/Debug/net10.0/LocalAgent.Console.dll` in an external terminal.
+
 Default configuration:
 
 | Setting | Default |

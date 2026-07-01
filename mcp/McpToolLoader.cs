@@ -124,7 +124,9 @@ public static class McpToolLoader
             Name = server.Name,
             Command = server.Command,
             Arguments = server.Args,
-            EnvironmentVariables = server.Env
+            EnvironmentVariables = server.Env.ToDictionary(
+                static kvp => kvp.Key,
+                static kvp => (string?)kvp.Value)
         });
     }
 

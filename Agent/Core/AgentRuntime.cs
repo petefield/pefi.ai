@@ -97,15 +97,9 @@ public sealed class AgentRuntime
                 System.Console.WriteLine();
 
                 // Stream the final response content (already parsed)
-                var fullResponse = new System.Text.StringBuilder();
-                
-                await foreach (var chunk in _planner.StreamFinalResponseAsync(_messages, _tools.Tools, _options, cancellationToken))
-                {
-                    fullResponse.Append(chunk);
-                    yield return chunk;
-                }
-
-                _messages.Add(new AgentMessage(AgentRole.Assistant, fullResponse.ToString()));
+               var actionContent = action.Content ?? string.Empty;
+                _messages.Add(new AgentMessage(AgentRole.Assistant, actionContent));
+                yield return actionContent;
                 yield break;
             }
 

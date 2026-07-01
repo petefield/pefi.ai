@@ -13,7 +13,7 @@ public sealed class McpServerConfig
     // For stdio MCP servers
     public string Command { get; set; } = "";
     public List<string> Args { get; set; } = [];
-    public Dictionary<string, string> Env { get; set; } = [];
+    public Dictionary<string, string?> Env { get; set; } = [];
 
     // For remote MCP servers
     public string? Url { get; set; }

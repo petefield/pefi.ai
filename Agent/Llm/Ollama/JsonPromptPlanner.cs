@@ -1,6 +1,7 @@
 using LocalAgent.Agent.Core;
 using LocalAgent.Agent.Util;
-using System.Runtime.CompilerServices;
+using LocalAgent.Console.Agent.Util;
+using Spectre.Console;
 using System.Text;
 using System.Text.Json;
 
@@ -38,156 +39,33 @@ public sealed class JsonPromptPlanner : IAgentPlanner
         var fullMessages = new List<AgentMessage> { new(AgentRole.System, systemMessage) };
         fullMessages.AddRange(messages);
 
-        var response = await _ollamaClient.GenerateAsync(
-            options.Model,
-            fullMessages,
-            options.Temperature,
-            cancellationToken);
-
-        return ParseAction(response, tools);
-    }
-
-    public async IAsyncEnumerable<string> StreamFinalResponseAsync(
-        IReadOnlyList<AgentMessage> messages,
-        IReadOnlyCollection<IAgentTool> tools,
-        AgentOptions options,
-        [EnumeratorCancellation] CancellationToken cancellationToken)
-    {
-        var systemMessage = BuildSystemMessage(tools);
-        var fullMessages = new List<AgentMessage> { new(AgentRole.System, systemMessage) };
-        fullMessages.AddRange(messages);
-
-        var fullResponse = new System.Text.StringBuilder();
-        var isStreamingContent = false;
-        var contentStarted = false;
-        var bracesDepth = 0;
-        var inString = false;
-        var escapeNext = false;
-        var fieldName = new System.Text.StringBuilder();
-        var currentField = "";
-
-        await foreach (var chunk in _ollamaClient.GenerateStreamAsync(
+        var response = "";
+        await foreach(var chunk in _ollamaClient.StreamOllama(
             options.Model,
             fullMessages,
             options.Temperature,
             cancellationToken))
         {
-            fullResponse.Append(chunk);
 
-            // Parse character by character to extract content field in real-time
-            foreach (var c in chunk)
+            if (!string.IsNullOrEmpty( chunk.Thinking))
             {
-                if (escapeNext)
-                {
-                    if (isStreamingContent)
-                    {
-                        // Handle escaped characters in content
-                        if (c == 'n') yield return "\n";
-                        else if (c == 't') yield return "\t";
-                        else if (c == 'r') yield return "\r";
-                        else if (c == '"') yield return "\"";
-                        else if (c == '\\') yield return "\\";
-                        else yield return c.ToString();
-                    }
-                    escapeNext = false;
-                    continue;
-                }
+                Con.WriteItalic(chunk.Thinking, ConsoleColor.DarkYellow);
+            }
 
-                if (c == '\\')
-                {
-                    escapeNext = true;
-                    continue;
-                }
+            else if(!string.IsNullOrEmpty(chunk.Response))
+            {
+                Con.WriteItalic(chunk.Response, ConsoleColor.Blue);
 
-                if (c == '"' && bracesDepth == 1)
-                {
-                    if (!inString)
-                    {
-                        // Starting a string (could be field name or value)
-                        inString = true;
-                        fieldName.Clear();
-                    }
-                    else
-                    {
-                        // Ending a string
-                        inString = false;
-                        
-                        if (currentField == "")
-                        {
-                            // This was a field name
-                            currentField = fieldName.ToString();
-                            
-                            // Check if we just found the content field
-                            if (currentField == "content")
-                            {
-                                // Next string will be the content - start streaming it
-                                isStreamingContent = true;
-                                contentStarted = true;
-                            }
-                        }
-                        else
-                        {
-                            // This was a field value
-                            if (currentField == "content" && isStreamingContent)
-                            {
-                                // We've reached the end of content field
-                                isStreamingContent = false;
-                            }
-                            currentField = "";
-                        }
-                        fieldName.Clear();
-                    }
-                    continue;
-                }
+                response += chunk.Response;
+            }
 
-                if (inString)
-                {
-                    if (currentField == "" || currentField == "type")
-                    {
-                        // Building field name or type value
-                        fieldName.Append(c);
-                    }
-                    else if (isStreamingContent && currentField == "content")
-                    {
-                        // Stream content character by character
-                        yield return c.ToString();
-                    }
-                    continue;
-                }
-
-                if (c == '{')
-                {
-                    bracesDepth++;
-                }
-                else if (c == '}')
-                {
-                    bracesDepth--;
-                }
+            if (chunk.Done)
+            {
+                return ParseAction(response, tools);
             }
         }
 
-        // If we didn't stream any content, fallback to parsing complete response
-        if (!contentStarted)
-        {
-            var completeResponse = fullResponse.ToString();
-            var json = JsonHelpers.ExtractFirstJsonObject(completeResponse);
-            
-            if (json != null)
-            {
-                using var doc = JsonDocument.Parse(json);
-                if (doc.RootElement.TryGetProperty("type", out var typeProperty) &&
-                    typeProperty.GetString() == "final" &&
-                    doc.RootElement.TryGetProperty("content", out var contentProperty))
-                {
-                    var content = contentProperty.GetString() ?? string.Empty;
-                    yield return content;
-                    yield break;
-                }
-            }
-
-            // Last resort: return the raw response
-            yield return completeResponse;
-        }
+        return new AgentAction(AgentActionType.Final, "Errr.  I stopped");
     }
 
     private static string BuildSystemMessage(IReadOnlyCollection<IAgentTool> tools)

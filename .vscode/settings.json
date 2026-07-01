@@ -1,0 +1,4 @@
+{
+  "terminal.external.linuxExec": "usr/bin/ghostty",
+  "debug.externalTerminal.linuxExec": "usr/bin/ghostty"
+}
